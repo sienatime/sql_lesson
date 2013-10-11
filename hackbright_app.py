@@ -7,41 +7,36 @@ def get_student_by_github(github):
     query = """SELECT first_name, last_name, github FROM Students WHERE github = ?"""
     DB.execute(query, (github,))
     row = DB.fetchone()
-    print """\
-Student: %s %s
-Github account: %s"""%(row[0], row[1], row[2])
+    return row
 
 def make_new_student(first_name, last_name, github):
     query = """INSERT into Students values (?, ?, ?)"""
     DB.execute(query, (first_name, last_name, github))
     CONN.commit()
-    print "Successfully added student: %s %s" % (first_name, last_name)
+    return "Successfully added student: %s %s" % (first_name, last_name)
 
 def get_project_by_title(project):
     query = """SELECT title, description, max_grade from Projects WHERE title = ?"""
     DB.execute(query, (project,))
     row = DB.fetchone()
-    print """\
+    return """\
 Project: %s
 Description: %s
 Max Grade: %d""" % (row[0],row[1],row[2])
 
 def make_new_project(title, description, max_grade):
     query = """INSERT into Projects values (?, ?, ?)"""
-
-    desc = ""
-    for word in description:
-        desc += word + " "
+    desc = " ".join(description)
 
     DB.execute(query, (title, desc, max_grade))
     CONN.commit()
-    print "Successfully added Project: %s" % title
+    return "Successfully added Project: %s" % title
 
 def get_student_grade_on_project(first_name, last_name, title):
     query = """SELECT first_name, last_name, title, grade from ReportCardView WHERE first_name = ? AND last_name = ? AND title = ?"""
     DB.execute(query, (first_name, last_name, title))
     row = DB.fetchone()
-    print """\
+    return """\
 Student: %s %s
 Project: %s
 Grade: %d""" % (row[0],row[1],row[2],row[3])
@@ -55,16 +50,17 @@ def grade(first_name, last_name, title, grade):
         query = """INSERT into Grades VALUES (?, ?, ?)"""
         DB.execute(query, (row[0], title, grade))
         CONN.commit()
-        print "Successfully added grade for %s %s" % (first_name, last_name)
+        return "Successfully added grade for %s %s" % (first_name, last_name)
     else:
-        print "Did not find student by that name."
+        return "Did not find student by that name."
 
 def get_student_grades(first_name, last_name):
     query = """SELECT title, grade FROM ReportCardView WHERE first_name = ? AND last_name = ?"""
     DB.execute(query, (first_name, last_name))
-    row = DB.fetchall()
-    for thing in row:
-        print unicode(thing)
+    rows = DB.fetchall()
+    # return rows
+    for thing in rows:
+        return thing[0], thing[1]
 
 def connect_to_db():
     global DB, CONN
